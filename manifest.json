@@ -1,0 +1,20 @@
+{
+  "name": "Calculatrice Vocale Pro",
+  "short_name": "Calc Vocale",
+  "description": "Calculatrice moderne avec commandes vocales, mode scientifique et thèmes",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f0c29",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"]
+}

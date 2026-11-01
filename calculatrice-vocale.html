@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Calc Vocale">
+  <meta name="description" content="Calculatrice moderne avec commandes vocales, mode scientifique et thèmes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <title>Calculatrice Vocale Pro</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      /* Thème sombre (par défaut) */
+      --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.55);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      --display-bg: rgba(0, 0, 0, 0.3);
+      --btn-number: rgba(255, 255, 255, 0.08);
+      --btn-number-hover: rgba(255, 255, 255, 0.15);
+      --btn-operator: rgba(99, 102, 241, 0.25);
+      --btn-operator-color: #a5b4fc;
+      --btn-operator-hover: rgba(99, 102, 241, 0.4);
+      --btn-special: rgba(255, 255, 255, 0.06);
+      --btn-special-color: rgba(255, 255, 255, 0.7);
+      --btn-special-hover: rgba(255, 255, 255, 0.12);
+      --btn-clear: rgba(239, 68, 68, 0.2);
+      --btn-clear-color: #fca5a5;
+      --btn-clear-hover: rgba(239, 68, 68, 0.35);
+      --btn-fn: rgba(16, 185, 129, 0.15);
+      --btn-fn-color: #6ee7b7;
+      --btn-fn-hover: rgba(16, 185, 129, 0.28);
+      --mode-bg: rgba(0, 0, 0, 0.25);
+      --mode-text: rgba(255, 255, 255, 0.5);
+      --history-item: rgba(0, 0, 0, 0.25);
+      --history-item-hover: rgba(99, 102, 241, 0.2);
+      --help-bg: rgba(255, 255, 255, 0.04);
+      --code-bg: rgba(255, 255, 255, 0.1);
+      --code-color: #a5b4fc;
+      --transcript: #a5b4fc;
+      --theme-btn-bg: rgba(255, 255, 255, 0.1);
+    }
+
+    [data-theme="light"] {
+      --bg-gradient: linear-gradient(135deg, #e0e7ff, #f0f4ff, #ede9fe);
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --card-border: rgba(99, 102, 241, 0.15);
+      --card-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.15);
+      --text-primary: #1e1b4b;
+      --text-secondary: rgba(30, 27, 75, 0.55);
+      --text-muted: rgba(30, 27, 75, 0.4);
+      --display-bg: rgba(99, 102, 241, 0.08);
+      --btn-number: rgba(99, 102, 241, 0.08);
+      --btn-number-hover: rgba(99, 102, 241, 0.16);
+      --btn-operator: rgba(99, 102, 241, 0.15);
+      --btn-operator-color: #4f46e5;
+      --btn-operator-hover: rgba(99, 102, 241, 0.28);
+      --btn-special: rgba(99, 102, 241, 0.06);
+      --btn-special-color: rgba(30, 27, 75, 0.65);
+      --btn-special-hover: rgba(99, 102, 241, 0.14);
+      --btn-clear: rgba(239, 68, 68, 0.12);
+      --btn-clear-color: #dc2626;
+      --btn-clear-hover: rgba(239, 68, 68, 0.22);
+      --btn-fn: rgba(16, 185, 129, 0.12);
+      --btn-fn-color: #059669;
+      --btn-fn-hover: rgba(16, 185, 129, 0.22);
+      --mode-bg: rgba(99, 102, 241, 0.1);
+      --mode-text: rgba(30, 27, 75, 0.5);
+      --history-item: rgba(99, 102, 241, 0.06);
+      --history-item-hover: rgba(99, 102, 241, 0.15);
+      --help-bg: rgba(99, 102, 241, 0.06);
+      --code-bg: rgba(99, 102, 241, 0.12);
+      --code-color: #4f46e5;
+      --transcript: #4f46e5;
+      --theme-btn-bg: rgba(99, 102, 241, 0.12);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      color: var(--text-primary);
+      gap: 20px;
+      flex-wrap: wrap;
+      transition: background 0.4s ease, color 0.3s ease;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .calculator {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 22px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--card-border);
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 8px;
+    }
+
+    .header h1 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theme-btn, .reset-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: var(--theme-btn-bg);
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s;
+      font-size: 1.05rem;
+    }
+
+    .theme-btn:hover, .reset-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .reset-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+
+    .install-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 12px;
+      width: 100%;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+    }
+
+    .install-btn:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .mode-toggle {
+      display: flex;
+      background: var(--mode-bg);
+      border-radius: 10px;
+      padding: 3px;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--mode-text);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+    }
+
+    .display-area {
+      background: var(--display-bg);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 14px;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      transition: background 0.3s;
+    }
+
+    .expression {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      min-height: 22px;
+      text-align: right;
+      word-break: break-all;
+      margin-bottom: 6px;
+    }
+
+    .result {
+      font-size: 2.4rem;
+      font-weight: 600;
+      text-align: right;
+      word-break: break-all;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    .voice-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 0 2px;
+    }
+
+    .status-text {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #888;
+      transition: all 0.3s;
+    }
+
+    .status-dot.listening {
+      background: #22c55e;
+      box-shadow: 0 0 12px #22c55e;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.2); }
+    }
+
+    .voice-btn {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border: none;
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .voice-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .voice-btn.listening {
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      animation: pulse-btn 1.5s infinite;
+    }
+
+    @keyframes pulse-btn {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+      50% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+    }
+
+    .voice-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .transcript {
+      font-size: 0.75rem;
+      color: var(--transcript);
+      margin-bottom: 10px;
+      min-height: 16px;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .buttons.scientific {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    button.calc-btn {
+      border: none;
+      border-radius: 14px;
+      font-size: 1.15rem;
+      font-weight: 500;
+      height: 58px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      color: var(--text-primary);
+    }
+
+    button.calc-btn:active {
+      transform: scale(0.94);
+    }
+
+    .btn-number {
+      background: var(--btn-number);
+      color: var(--text-primary);
+    }
+
+    .btn-number:hover {
+      background: var(--btn-number-hover);
+    }
+
+    .btn-operator {
+      background: var(--btn-operator);
+      color: var(--btn-operator-color);
+    }
+
+    .btn-operator:hover {
+      background: var(--btn-operator-hover);
+    }
+
+    .btn-equals {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+    }
+
+    .btn-equals:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-clear {
+      background: var(--btn-clear);
+      color: var(--btn-clear-color);
+    }
+
+    .btn-clear:hover {
+      background: var(--btn-clear-hover);
+    }
+
+    .btn-special {
+      background: var(--btn-special);
+      color: var(--btn-special-color);
+      font-size: 0.95rem;
+    }
+
+    .btn-special:hover {
+      background: var(--btn-special-hover);
+    }
+
+    .btn-fn {
+      background: var(--btn-fn);
+      color: var(--btn-fn-color);
+      font-size: 0.85rem;
+    }
+
+    .btn-fn:hover {
+      background: var(--btn-fn-hover);
+    }
+
+    /* Historique */
+    .history-panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 28px;
+      padding: 20px;
+      width: 100%;
+      max-width: 300px;
+      border: 1px solid var(--card-border);
+      max-height: 520px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--card-shadow);
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .history-panel h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-primary);
+    }
+
+    .clear-history {
+      background: none;
+      border: none;
+      color: #f87171;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .clear-history:hover {
+      background: rgba(239, 68, 68, 0.12);
+    }
+
+    .history-list {
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-item {
+      background: var(--history-item);
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .history-item:hover {
+      background: var(--history-item-hover);
+    }
+
+    .history-expr {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .history-result {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .history-empty {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 30px 0;
+    }
+
+    .help {
+      margin-top: 16px;
+      background: var(--help-bg);
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      transition: background 0.3s;
+    }
+
+    .help h3 {
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+    }
+
+    .help code {
+      background: var(--code-bg);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      color: var(--code-color);
+    }
+
+    @media (max-width: 750px) {
+      body {
+        flex-direction: column;
+        align-items: center;
+      }
+      .history-panel {
+        max-width: 400px;
+        max-height: 250px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .calculator { padding: 14px; }
+      button.calc-btn { height: 52px; font-size: 1.05rem; }
+      .result { font-size: 2rem; }
+      .buttons.scientific { grid-template-columns: repeat(4, 1fr); }
+      .header h1 { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="calculator">
+      <div class="header">
+        <h1>Calculatrice Vocale</h1>
+        <div class="header-controls">
+          <button class="reset-btn" onclick="resetAll()" title="Tout réinitialiser">↺</button>
+          <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Changer de thème">🌙</button>
+          <div class="mode-toggle">
+            <button class="mode-btn active" id="modeBasic" onclick="setMode('basic')">Basique</button>
+            <button class="mode-btn" id="modeSci" onclick="setMode('sci')">Sci</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="display-area">
+        <div class="expression" id="expression"></div>
+        <div class="result" id="result">0</div>
+      </div>
+
+      <div class="voice-status">
+        <div class="status-text">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Prêt</span>
+        </div>
+        <button class="voice-btn" id="voiceBtn" title="Commande vocale">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="transcript" id="transcript"></div>
+
+      <!-- Mode Basique -->
+      <div class="buttons" id="buttonsBasic">
+        <button class="calc-btn btn-clear" onclick="clearAll()">C</button>
+        <button class="calc-btn btn-special" onclick="backspace()">⌫</button>
+        <button class="calc-btn btn-special" onclick="append('%')">%</button>
+        <button class="calc-btn btn-operator" onclick="append('/')">÷</button>
+
+        <button class="calc-btn btn-number" onclick="append('7')">7</button>
+        <button class="calc-btn btn-number" onclick="append('8')">8</button>
+        <button class="calc-btn btn-number" onclick="append('9')">9</button>
+        <button class="calc-btn btn-operator" onclick="append('*')">×</button>
+
+        <button class="calc-btn btn-number" onclick="append('4')">4</button>
+        <button class="calc-btn btn-number" onclick="append('5')">5</button>
+        <button class="calc-btn btn-number" onclick="append('6')">6</button>
+        <button class="calc-btn btn-operator" onclick="append('-')">−</button>
+
+        <button class="calc-btn btn-number" onclick="append('1')">1</button>
+        <button class="calc-btn btn-number" onclick="append('2')">2</button>
+        <button class="calc-btn btn-number" onclick="append('3')">3</button>
+        <button class="calc-btn btn-operator" onclick="append('+')">+</button>
+
+        <button class="calc-btn btn-number" onclick="append('0')">0</button>
+        <button class="calc-btn btn-number" onclick="append('.')">.</button>
+        <button class="calc-btn btn-special" onclick="append('**')">xʸ</button>
+        <button class="calc-btn btn-equals" onclick="calculate()">=</button>
+      </div>
+
+      <!-- Mode Scientifique -->
+      <div class="buttons scientific" id="buttonsSci" style="display:none;">
+        <button class="calc-btn btn-fn" onclick="appendFn('sin')">sin</button>
+        <button class="calc-btn btn-fn" onclick="appendFn('cos')">cos</button>
+        <button class="calc-btn btn-fn" onclick="appendFn('tan')">tan</button>
+        <button class="calc-btn btn-fn" onclick="appendFn('log')">log</button>
+        <button class="calc-btn btn-fn" onclick="appendFn('ln')">ln</button>
+
+        <button class="calc-btn btn-fn" onclick="appendFn('sqrt')">√</button>
+        <button class="calc-btn btn-fn" onclick="append('**2')">x²</button>
+        <button class="calc-btn btn-fn" onclick="append('**')">xʸ</button>
+        <button class="calc-btn btn-fn" onclick="append('Math.PI')">π</button>
+        <button class="calc-btn btn-fn" onclick="append('Math.E')">e</button>
+
+        <button class="calc-btn btn-clear" onclick="clearAll()">C</button>
+        <button class="calc-btn btn-special" onclick="backspace()">⌫</button>
+        <button class="calc-btn btn-special" onclick="append('%')">%</button>
+        <button class="calc-btn btn-special" onclick="append('(')">(</button>
+        <button class="calc-btn btn-special" onclick="append(')')">)</button>
+
+        <button class="calc-btn btn-number" onclick="append('7')">7</button>
+        <button class="calc-btn btn-number" onclick="append('8')">8</button>
+        <button class="calc-btn btn-number" onclick="append('9')">9</button>
+        <button class="calc-btn btn-operator" onclick="append('/')">÷</button>
+        <button class="calc-btn btn-operator" onclick="append('*')">×</button>
+
+        <button class="calc-btn btn-number" onclick="append('4')">4</button>
+        <button class="calc-btn btn-number" onclick="append('5')">5</button>
+        <button class="calc-btn btn-number" onclick="append('6')">6</button>
+        <button class="calc-btn btn-operator" onclick="append('-')">−</button>
+        <button class="calc-btn btn-operator" onclick="append('+')">+</button>
+
+        <button class="calc-btn btn-number" onclick="append('1')">1</button>
+        <button class="calc-btn btn-number" onclick="append('2')">2</button>
+        <button class="calc-btn btn-number" onclick="append('3')">3</button>
+        <button class="calc-btn btn-number" onclick="append('0')">0</button>
+        <button class="calc-btn btn-equals" onclick="calculate()">=</button>
+      </div>
+    </div>
+
+    <div class="help">
+      <h3>🎤 Commandes vocales</h3>
+      <code>cinq plus trois</code> · <code>racine de seize</code><br>
+      <code>sinus de trente</code> · <code>log de cent</code><br>
+      <code>effacer</code> · <code>reset</code> · <code>thème clair</code>
+    </div>
+
+    <button class="install-btn" id="installBtn" onclick="installPWA()">
+      ⬇️ Installer l'application
+    </button>
+  </div>
+
+  <!-- Panneau Historique -->
+  <div class="history-panel">
+    <h2>
+      Historique
+      <button class="clear-history" onclick="clearHistory()">Effacer</button>
+    </h2>
+    <div class="history-list" id="historyList">
+      <div class="history-empty">Aucun calcul pour le moment</div>
+    </div>
+  </div>
+
+  <script>
+    let expression = '';
+    let isListening = false;
+    let recognition = null;
+    let history = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+    let currentMode = 'basic';
+
+    const resultEl = document.getElementById('result');
+    const expressionEl = document.getElementById('expression');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const transcriptEl = document.getElementById('transcript');
+    const historyList = document.getElementById('historyList');
+    const themeBtn = document.getElementById('themeBtn');
+
+    // === Thème ===
+    function initTheme() {
+      const saved = localStorage.getItem('calcTheme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      themeBtn.textContent = saved === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('calcTheme', next);
+      themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
+    // === Mode ===
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('modeBasic').classList.toggle('active', mode === 'basic');
+      document.getElementById('modeSci').classList.toggle('active', mode === 'sci');
+      document.getElementById('buttonsBasic').style.display = mode === 'basic' ? 'grid' : 'none';
+      document.getElementById('buttonsSci').style.display = mode === 'sci' ? 'grid' : 'none';
+    }
+
+    // === Calculatrice ===
+    function append(val) {
+      if (expression === 'Erreur') expression = '';
+      expression += val;
+      updateDisplay();
+    }
+
+    function appendFn(fn) {
+      if (expression === 'Erreur') expression = '';
+      const map = {
+        'sin': 'Math.sin(',
+        'cos': 'Math.cos(',
+        'tan': 'Math.tan(',
+        'log': 'Math.log10(',
+        'ln': 'Math.log(',
+        'sqrt': 'Math.sqrt('
+      };
+      expression += map[fn] || fn;
+      updateDisplay();
+    }
+
+    function clearAll() {
+      expression = '';
+      updateDisplay();
+      transcriptEl.textContent = '';
+    }
+
+    function resetAll() {
+      expression = '';
+      updateDisplay();
+      transcriptEl.textContent = '';
+      history = [];
+      localStorage.removeItem('calcHistory');
+      renderHistory();
+      setMode('basic');
+      speak('Réinitialisé');
+    }
+
+    function backspace() {
+      expression = expression.slice(0, -1);
+      updateDisplay();
+    }
+
+    function calculate() {
+      if (!expression) return;
+      try {
+        let expr = expression
+          .replace(/×/g, '*')
+          .replace(/÷/g, '/')
+          .replace(/−/g, '-');
+
+        expr = expr
+          .replace(/Math\.sin\(([^)]+)\)/g, (_, v) => `Math.sin((${v})*Math.PI/180)`)
+          .replace(/Math\.cos\(([^)]+)\)/g, (_, v) => `Math.cos((${v})*Math.PI/180)`)
+          .replace(/Math\.tan\(([^)]+)\)/g, (_, v) => `Math.tan((${v})*Math.PI/180)`);
+
+        const result = Function('"use strict"; return (' + expr + ')')();
+        const rounded = Math.round(result * 1e12) / 1e12;
+        const displayExpr = expression;
+
+        expressionEl.textContent = displayExpr + ' =';
+        expression = String(rounded);
+        resultEl.textContent = expression;
+
+        addToHistory(displayExpr, rounded);
+        speak(String(rounded));
+      } catch (e) {
+        expression = 'Erreur';
+        resultEl.textContent = 'Erreur';
+      }
+    }
+
+    function updateDisplay() {
+      resultEl.textContent = expression || '0';
+      if (!expression) expressionEl.textContent = '';
+    }
+
+    // === Historique ===
+    function addToHistory(expr, result) {
+      history.unshift({ expr, result, time: Date.now() });
+      if (history.length > 50) history.pop();
+      localStorage.setItem('calcHistory', JSON.stringify(history));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      if (history.length === 0) {
+        historyList.innerHTML = '<div class="history-empty">Aucun calcul pour le moment</div>';
+        return;
+      }
+      historyList.innerHTML = history.map((h, i) => `
+        <div class="history-item" onclick="reuseHistory(${i})">
+          <div class="history-expr">${h.expr}</div>
+          <div class="history-result">= ${h.result}</div>
+        </div>
+      `).join('');
+    }
+
+    function reuseHistory(index) {
+      expression = String(history[index].result);
+      updateDisplay();
+    }
+
+    function clearHistory() {
+      history = [];
+      localStorage.removeItem('calcHistory');
+      renderHistory();
+    }
+
+    // === Reconnaissance vocale ===
+    function initSpeech() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        statusText.textContent = 'Non supporté';
+        voiceBtn.disabled = true;
+        voiceBtn.style.opacity = '0.4';
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = 'fr-FR';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        isListening = true;
+        voiceBtn.classList.add('listening');
+        statusDot.classList.add('listening');
+        statusText.textContent = 'Écoute...';
+        transcriptEl.textContent = '';
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        voiceBtn.classList.remove('listening');
+        statusDot.classList.remove('listening');
+        statusText.textContent = 'Prêt';
+      };
+
+      recognition.onerror = (e) => {
+        isListening = false;
+        voiceBtn.classList.remove('listening');
+        statusDot.classList.remove('listening');
+        statusText.textContent = e.error === 'not-allowed' ? 'Micro refusé' : 'Erreur';
+      };
+
+      recognition.onresult = (event) => {
+        let interim = '';
+        let final = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            final += transcript;
+          } else {
+            interim += transcript;
+          }
+        }
+
+        if (interim) transcriptEl.textContent = '« ' + interim + ' »';
+        if (final) {
+          transcriptEl.textContent = '« ' + final + ' »';
+          processVoiceCommand(final.trim().toLowerCase());
+        }
+      };
+    }
+
+    function toggleVoice() {
+      if (!recognition) return;
+      if (isListening) recognition.stop();
+      else recognition.start();
+    }
+
+    // === Traitement des commandes vocales ===
+    function processVoiceCommand(text) {
+      if (/reset|réinitialiser|réinitialise|tout remettre à zéro|remise à zéro complète/.test(text)) {
+        resetAll();
+        return;
+      }
+      if (/effacer|clear|tout effacer/.test(text)) {
+        clearAll();
+        speak('Effacé');
+        return;
+      }
+      if (/calculer|égale|résultat|égal/.test(text)) {
+        calculate();
+        return;
+      }
+      if (/retour|annuler|supprimer/.test(text)) {
+        backspace();
+        return;
+      }
+      if (/mode scientifique|scientifique/.test(text)) {
+        setMode('sci');
+        speak('Mode scientifique');
+        return;
+      }
+      if (/mode basique|basique|normal/.test(text)) {
+        setMode('basic');
+        speak('Mode basique');
+        return;
+      }
+      if (/thème clair|mode clair|clair/.test(text)) {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('calcTheme', 'light');
+        themeBtn.textContent = '🌙';
+        speak('Thème clair');
+        return;
+      }
+      if (/thème sombre|mode sombre|sombre/.test(text)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('calcTheme', 'dark');
+        themeBtn.textContent = '☀️';
+        speak('Thème sombre');
+        return;
+      }
+      if (/changer de thème|thème|changer thème/.test(text)) {
+        toggleTheme();
+        const t = document.documentElement.getAttribute('data-theme');
+        speak(t === 'light' ? 'Thème clair' : 'Thème sombre');
+        return;
+      }
+
+      const numberMap = {
+        'zéro': '0', 'zero': '0',
+        'un': '1', 'une': '1',
+        'deux': '2', 'trois': '3', 'quatre': '4',
+        'cinq': '5', 'six': '6', 'sept': '7',
+        'huit': '8', 'neuf': '9', 'dix': '10',
+        'onze': '11', 'douze': '12', 'treize': '13',
+        'quatorze': '14', 'quinze': '15', 'seize': '16',
+        'vingt': '20', 'trente': '30', 'quarante': '40',
+        'cinquante': '50', 'soixante': '60',
+        'soixante-dix': '70', 'quatre-vingts': '80', 'quatre-vingt': '80',
+        'quatre-vingt-dix': '90', 'cent': '100', 'mille': '1000',
+        'pi': 'Math.PI'
+      };
+
+      let processed = text;
+      const sortedNums = Object.keys(numberMap).sort((a, b) => b.length - a.length);
+      for (const word of sortedNums) {
+        processed = processed.replace(new RegExp('\\b' + word + '\\b', 'gi'), numberMap[word]);
+      }
+
+      processed = processed
+        .replace(/\bsinus de\b/gi, 'Math.sin(')
+        .replace(/\bsinus\b/gi, 'Math.sin(')
+        .replace(/\bsin de\b/gi, 'Math.sin(')
+        .replace(/\bcosinus de\b/gi, 'Math.cos(')
+        .replace(/\bcosinus\b/gi, 'Math.cos(')
+        .replace(/\bcos de\b/gi, 'Math.cos(')
+        .replace(/\btangente de\b/gi, 'Math.tan(')
+        .replace(/\btangente\b/gi, 'Math.tan(')
+        .replace(/\btan de\b/gi, 'Math.tan(')
+        .replace(/\blogarithme de\b/gi, 'Math.log10(')
+        .replace(/\blog de\b/gi, 'Math.log10(')
+        .replace(/\blog\b/gi, 'Math.log10(')
+        .replace(/\bln de\b/gi, 'Math.log(')
+        .replace(/\bln\b/gi, 'Math.log(')
+        .replace(/\bracine carrée de\b/gi, 'Math.sqrt(')
+        .replace(/\bracine de\b/gi, 'Math.sqrt(')
+        .replace(/\bracine\b/gi, 'Math.sqrt(');
+
+      processed = processed
+        .replace(/\bplus\b/gi, '+')
+        .replace(/\bmoins\b/gi, '-')
+        .replace(/\bfois\b/gi, '*')
+        .replace(/\bmultiplié par\b/gi, '*')
+        .replace(/\bmultiplier par\b/gi, '*')
+        .replace(/\bdivisé par\b/gi, '/')
+        .replace(/\bdiviser par\b/gi, '/')
+        .replace(/\bsur\b/gi, '/')
+        .replace(/\bpuissance\b/gi, '**')
+        .replace(/\bélevé à\b/gi, '**')
+        .replace(/\bau carré\b/gi, '**2')
+        .replace(/\bpourcent\b/gi, '/100')
+        .replace(/\bvirgule\b/gi, '.')
+        .replace(/\bpoint\b/gi, '.');
+
+      processed = processed
+        .replace(/[^0-9+\-*/().%\sMath.sqrtlogsincotanPIE]/g, '')
+        .replace(/\s+/g, '');
+
+      const open = (processed.match(/\(/g) || []).length;
+      const close = (processed.match(/\)/g) || []).length;
+      processed += ')'.repeat(Math.max(0, open - close));
+
+      if (processed) {
+        expression = processed;
+        updateDisplay();
+        setTimeout(() => calculate(), 250);
+      }
+    }
+
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'fr-FR';
+        utterance.rate = 1;
+        speechSynthesis.speak(utterance);
+      }
+    }
+
+    // Init
+    initTheme();
+    voiceBtn.addEventListener('click', toggleVoice);
+    initSpeech();
+    renderHistory();
+
+    // Mode depuis URL (?mode=sci)
+    if (new URLSearchParams(location.search).get('mode') === 'sci') {
+      setMode('sci');
+    }
+
+    // Clavier
+    document.addEventListener('keydown', (e) => {
+      if (e.key >= '0' && e.key <= '9' || e.key === '.') append(e.key);
+      else if (['+', '-', '*', '/'].includes(e.key)) append(e.key);
+      else if (e.key === 'Enter' || e.key === '=') calculate();
+      else if (e.key === 'Backspace') backspace();
+      else if (e.key === 'Escape') clearAll();
+      else if (e.key === '(' || e.key === ')') append(e.key);
+    });
+
+    // === PWA : Service Worker + Installation ===
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
+    let deferredPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBtn) installBtn.style.display = 'flex';
+    });
+
+    function installPWA() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((result) => {
+        if (result.outcome === 'accepted') {
+          if (installBtn) installBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      if (installBtn) installBtn.style.display = 'none';
+      deferredPrompt = null;
+    });
+  </script>
+</body>
+</html>
